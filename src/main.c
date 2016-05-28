@@ -27,9 +27,10 @@ char snake_char_first = 'O';
 char snake_char = 'o';
 char snake_char_tail = '.';
 char food = '@';
-int screen_width = 80;
-int screen_height = 40;
+int screen_width = -30;
+int screen_height = -30;
 int direction;
+int new_direction;
 struct Position pos[MAX_SIZE];
 struct Position food_position;
 struct termios orig_term_attr;
@@ -213,25 +214,21 @@ void play()
     {
         usleep(speed * 1000);
         int key = fetch_key();
-        if (key != -1)
+        while (key != -1)
         {
             switch (key)
             {
                 case 65:
-                    if (direction != UP)
-                        direction = DOWN;
+                    new_direction = DOWN;
                     break;
                 case 66:
-                    if (direction != DOWN)
-                        direction = UP;
+                    new_direction = UP;
                     break;
                 case 67:
-                    if (direction != LEFT)
-                        direction = RIGHT;
+                    new_direction = RIGHT;
                     break;
                 case 68:
-                    if (direction != RIGHT)
-                        direction = LEFT;
+                    new_direction = LEFT;
                     break;
                 case 112:
                     if (paused)
@@ -242,13 +239,25 @@ void play()
                 case 120:
                     quit = 2;
                     break;
-                default:
-                    //printf("%i", key);
-                    break;
             }
+            key = fetch_key();
         }
-        if (!quit && !paused)
-            move_snake();
+        if (quit)
+            return;
+        if (paused)
+            continue;
+        if (!(new_direction == RIGHT && direction == LEFT) && !(new_direction == LEFT && direction == RIGHT) &&
+            !(new_direction == UP && direction == DOWN) && !(new_direction == DOWN && direction == UP))
+            direction = new_direction;
+        move_snake();
+    }
+}
+
+void params(int argc, char **argv)
+{
+    while (argc-- > 0)
+    {
+        //if (argv[argc][0] == '-')
     }
 }
 
@@ -274,7 +283,8 @@ void new_game()
        pos[remaining].x = start_x--; 
        pos[remaining].y = start_y; 
     }
-    direction = RIGHT;
+    new_direction =   RIGHT;
+    direction =       RIGHT;
     clear();
     generate_food();
     draw_snake();
@@ -282,6 +292,7 @@ void new_game()
 
 int main(int argc, char **argv)
 {
+    params(argc, argv);
     struct winsize w;
     srand(time(NULL));
     /* set the terminal to raw mode */
@@ -291,8 +302,11 @@ int main(int argc, char **argv)
     new_term_attr.c_cc[VTIME] = 0;
     new_term_attr.c_cc[VMIN] = 0;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-    screen_height = w.ws_row;
-    screen_width = w.ws_col;
+    if (screen_width < 0 || screen_height < 0)
+    {
+        screen_height = w.ws_row;
+        screen_width = w.ws_col;
+    }
     tcsetattr(fileno(stdin), TCSANOW, &new_term_attr);
     while (quit != 2)
     {
