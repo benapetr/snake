@@ -166,6 +166,7 @@ void move_snake()
     head.x += add_x;
     head.y += add_y;
 
+    int respawn = 0;
 
     // check if we fucked up
     if (check_snake_collision(head))
@@ -182,7 +183,7 @@ void move_snake()
         hud();
         pos[snake_size].x = tail.x;
         pos[snake_size].y = tail.y;
-        generate_food();
+        respawn = 1;
     }
 
     pos[0].x += add_x;
@@ -194,6 +195,8 @@ void move_snake()
     // make new tail
     gotoxy(pos[snake_size].x, pos[snake_size].y);
     printf("%c", snake_char_tail);
+    if (respawn)
+        generate_food();
     gotoxy(screen_width, screen_height + 1);
     fflush(stdout);
 }
@@ -262,10 +265,6 @@ void play()
 
 void params(int argc, char **argv)
 {
-    while (argc-- > 0)
-    {
-        //if (argv[argc][0] == '-')
-    }
 }
 
 void new_game()
