@@ -72,7 +72,7 @@ void randomize_food()
 void hud()
 {
     gotoxy(0, screen_height + 1);
-    printf("Score: %i | x - Quit the game | p - pause the game                 ", snake_size);
+    printf("Score: %i | x - Quit the game | p - pause the game                 ", snake_size - 3);
 }
 
 int check_snake_collision(struct Position px)
@@ -194,7 +194,7 @@ void move_snake()
     // make new tail
     gotoxy(pos[snake_size].x, pos[snake_size].y);
     printf("%c", snake_char_tail);
-    gotoxy(screen_width - 1, screen_height + 1);
+    gotoxy(screen_width, screen_height + 1);
     fflush(stdout);
 }
 
