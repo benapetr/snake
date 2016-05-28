@@ -69,6 +69,12 @@ void randomize_food()
     food_position.y = rand_lim(screen_height);
 }
 
+void hud()
+{
+    gotoxy(0, screen_height + 1);
+    printf("Score: %i | x - Quit the game | p - pause the game                 ", snake_size);
+}
+
 int check_snake_collision(struct Position px)
 {
     if (px.x < 0)
@@ -173,6 +179,7 @@ void move_snake()
     {
         // yay
         snake_size++;
+        hud();
         pos[snake_size].x = tail.x;
         pos[snake_size].y = tail.y;
         generate_food();
@@ -187,7 +194,7 @@ void move_snake()
     // make new tail
     gotoxy(pos[snake_size].x, pos[snake_size].y);
     printf("%c", snake_char_tail);
-    gotoxy(0, 0);
+    gotoxy(screen_width - 1, screen_height + 1);
     fflush(stdout);
 }
 
@@ -287,6 +294,7 @@ void new_game()
     direction =       RIGHT;
     clear();
     generate_food();
+    hud();
     draw_snake();
 }
 
@@ -304,7 +312,7 @@ int main(int argc, char **argv)
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
     if (screen_width < 0 || screen_height < 0)
     {
-        screen_height = w.ws_row;
+        screen_height = w.ws_row - 1;
         screen_width = w.ws_col;
     }
     tcsetattr(fileno(stdin), TCSANOW, &new_term_attr);
