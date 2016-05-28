@@ -11,3 +11,5 @@ No libraries, pure linux C code
 
     x - exit
     p - pause
+
+Terminal options
