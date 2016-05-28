@@ -28,7 +28,7 @@ char snake_char = 'o';
 char snake_char_tail = '.';
 char food = '@';
 int screen_width = 80;
-int screen_height = 80;
+int screen_height = 40;
 int direction;
 struct Position pos[MAX_SIZE];
 struct Position food_position;
@@ -69,6 +69,15 @@ void randomize_food()
 
 int check_snake_collision(struct Position px)
 {
+    if (px.x < 0)
+        return 1;
+    if (px.y < 0)
+        return 1;
+    if (px.x > screen_width)
+        return 1;
+    if (px.y > screen_height)
+        return 1;
+
     int remaining = -1;
     while (remaining++ < snake_size)
     {
@@ -96,13 +105,15 @@ void game_over()
     gotoxy((screen_width / 2) - 10, (screen_height / 2) + 2);
     printf("Press x to exit or n for new game");
     int key = -1;
-    while (key == -1)
+    while (key != 110 && key != 120)
     {
         key = fetch_key();
         usleep(200);
     }
-    printf("%i", key);
-    quit = true;
+    if (key == 120)
+        quit = 2;
+    else
+        quit = 1;
 }
 
 void move_snake()
@@ -143,11 +154,30 @@ void move_snake()
         pos[remaining].x = pos[remaining-1].x;
         pos[remaining].y = pos[remaining-1].y;
     }
-    pos[0].x += add_x;
-    pos[0].y += add_y;
+
+    head.x += add_x;
+    head.y += add_y;
+
 
     // check if we fucked up
-    if (
+    if (check_snake_collision(head))
+    {
+        game_over();
+        return;
+    }
+
+    // check if we ate food
+    if (head.x == food_position.x && head.y == food_position.y)
+    {
+        // yay
+        snake_size++;
+        pos[snake_size].x = tail.x;
+        pos[snake_size].y = tail.y;
+        generate_food();
+    }
+
+    pos[0].x += add_x;
+    pos[0].y += add_y;
 
     // make new head
     gotoxy(pos[0].x, pos[0].y);
@@ -187,16 +217,20 @@ void play()
             switch (key)
             {
                 case 65:
-                    direction = DOWN;
+                    if (direction != UP)
+                        direction = DOWN;
                     break;
                 case 66:
-                    direction = UP;
+                    if (direction != DOWN)
+                        direction = UP;
                     break;
                 case 67:
-                    direction = RIGHT;
+                    if (direction != LEFT)
+                        direction = RIGHT;
                     break;
                 case 68:
-                    direction = LEFT;
+                    if (direction != RIGHT)
+                        direction = LEFT;
                     break;
                 case 120:
                     quit = 2;
@@ -246,9 +280,10 @@ int main(int argc, char **argv)
     new_term_attr.c_cc[VTIME] = 0;
     new_term_attr.c_cc[VMIN] = 0;
     tcsetattr(fileno(stdin), TCSANOW, &new_term_attr);
-    while (!quit)
+    while (quit != 2)
     {
         new_game();
+        quit = 0;
         play();
     }
     /* restore the original terminal attributes */
