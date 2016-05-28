@@ -22,7 +22,7 @@ struct Position
 };
 
 int snake_size = 0;
-int speed = 200;
+int speed = 80;
 char snake_char_first = 'O';
 char snake_char = 'o';
 char snake_char_tail = '.';
@@ -34,6 +34,7 @@ struct Position pos[MAX_SIZE];
 struct Position food_position;
 struct termios orig_term_attr;
 struct termios new_term_attr;
+int paused = 0;
 int quit = 0;
 
 int rand_lim(int limit)
@@ -232,12 +233,21 @@ void play()
                     if (direction != RIGHT)
                         direction = LEFT;
                     break;
+                case 112:
+                    if (paused)
+                        paused = 0;
+                    else
+                        paused = 1;
+                    break;
                 case 120:
                     quit = 2;
                     break;
+                default:
+                    //printf("%i", key);
+                    break;
             }
         }
-        if (!quit)
+        if (!quit && !paused)
             move_snake();
     }
 }
@@ -272,6 +282,7 @@ void new_game()
 
 int main(int argc, char **argv)
 {
+    struct winsize w;
     srand(time(NULL));
     /* set the terminal to raw mode */
     tcgetattr(fileno(stdin), &orig_term_attr);
@@ -279,6 +290,9 @@ int main(int argc, char **argv)
     new_term_attr.c_lflag &= ~(ECHO|ICANON);
     new_term_attr.c_cc[VTIME] = 0;
     new_term_attr.c_cc[VMIN] = 0;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    screen_height = w.ws_row;
+    screen_width = w.ws_col;
     tcsetattr(fileno(stdin), TCSANOW, &new_term_attr);
     while (quit != 2)
     {
