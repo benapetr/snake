@@ -195,9 +195,9 @@ void move_snake()
     // make new tail
     gotoxy(pos[snake_size].x, pos[snake_size].y);
     printf("%c", snake_char_tail);
+    gotoxy(screen_width, screen_height + 1);
     if (respawn)
         generate_food();
-    gotoxy(screen_width, screen_height + 1);
     fflush(stdout);
 }
 
