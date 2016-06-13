@@ -8,7 +8,9 @@
 
 #define clear() printf("\033[H\033[J")
 #define gotoxy(x,y) printf("\033[%d;%dH", (y), (x))
-#define MAX_SIZE 800
+#define MAX_SIZE   800
+#define MAX_WIDTH  200
+#define MAX_HEIGHT 200
 
 #define LEFT 0
 #define RIGHT 1
@@ -37,6 +39,7 @@ struct termios orig_term_attr;
 struct termios new_term_attr;
 int paused = 0;
 int quit = 0;
+char arena[MAX_HEIGHT][MAX_WIDTH];
 
 int rand_lim(int limit)
 {
@@ -77,13 +80,13 @@ void hud()
 
 int check_snake_collision(struct Position px)
 {
-    if (px.x < 0)
+    if (px.x < 1)
         return 1;
-    if (px.y < 0)
+    if (px.y < 1)
         return 1;
-    if (px.x > screen_width)
+    if (px.x > screen_width - 1)
         return 1;
-    if (px.y > screen_height)
+    if (px.y > screen_height - 1)
         return 1;
 
     int remaining = -1;
@@ -319,6 +322,10 @@ int main(int argc, char **argv)
         screen_height = w.ws_row - 1;
         screen_width = w.ws_col;
     }
+    if (screen_width > MAX_WIDTH)
+        screen_width = MAX_WIDTH;
+    if (screen_height > MAX_HEIGHT)
+        screen_height = MAX_HEIGHT; 
     tcsetattr(fileno(stdin), TCSANOW, &new_term_attr);
     while (quit != 2)
     {
