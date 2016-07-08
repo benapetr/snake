@@ -94,7 +94,7 @@ void draw_map()
 void hud()
 {
     gotoxy(0, screen_height + 1);
-    printf("Score: %i | x - Quit the game | p - pause the game                 ", snake_size - 3);
+    printf("Score: %i | x - Quit the game | p - pause the game - https://github.com/benapetr/snake   ", snake_size - 3);
 }
 
 int check_snake_collision(struct Position px)
