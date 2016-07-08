@@ -7,10 +7,10 @@
 #include <unistd.h>
 
 #define clear() printf("\033[H\033[J")
-#define gotoxy(x,y) printf("\033[%d;%dH", (y), (x))
+#define gotoxy(x,y) printf("\033[%d;%dH", (y+1), (x+1))
 #define MAX_SIZE   800
-#define MAX_WIDTH  200
-#define MAX_HEIGHT 200
+#define MAX_WIDTH  300
+#define MAX_HEIGHT 300
 
 #define LEFT 0
 #define RIGHT 1
@@ -72,6 +72,25 @@ void randomize_food()
     food_position.y = rand_lim(screen_height);
 }
 
+void draw_map()
+{
+    int x,y;
+    x = 0;
+    while (x-1 < screen_width)
+    {
+        y = 0;
+        do {
+            if (x == 0 || y == 0 || x >= screen_width || y >= screen_height-1)
+            {
+                arena[x][y] = '*';
+                gotoxy(x,y);
+                printf("*");
+            }
+        } while (y++ < screen_height-1);
+       x++;
+    }
+}
+
 void hud()
 {
     gotoxy(0, screen_height + 1);
@@ -80,6 +99,8 @@ void hud()
 
 int check_snake_collision(struct Position px)
 {
+    if (arena[px.x][px.y] != ' ')
+        return 1;
     if (px.x < 1)
         return 1;
     if (px.y < 1)
@@ -279,6 +300,16 @@ void new_game()
 {
     snake_size = 3;
     // reset for debugging
+    int ax = 0;
+    int ay = 0;
+    do
+    {
+        ay = 0;
+        do
+        {
+            arena[ax][ay] = ' ';
+        } while (++ay < MAX_WIDTH);
+    } while (++ax < MAX_HEIGHT);
     int current_pos = -1;
     while (current_pos++ < MAX_SIZE)
     {
@@ -300,6 +331,7 @@ void new_game()
     new_direction =   RIGHT;
     direction =       RIGHT;
     clear();
+    draw_map();
     generate_food();
     hud();
     draw_snake();
@@ -322,10 +354,10 @@ int main(int argc, char **argv)
         screen_height = w.ws_row - 1;
         screen_width = w.ws_col;
     }
-    if (screen_width > MAX_WIDTH)
-        screen_width = MAX_WIDTH;
-    if (screen_height > MAX_HEIGHT)
-        screen_height = MAX_HEIGHT; 
+    if (screen_width >= MAX_WIDTH)
+        screen_width = MAX_WIDTH - 1;
+    if (screen_height >= MAX_HEIGHT)
+        screen_height = MAX_HEIGHT - 1; 
     tcsetattr(fileno(stdin), TCSANOW, &new_term_attr);
     while (quit != 2)
     {
