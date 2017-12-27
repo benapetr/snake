@@ -106,7 +106,7 @@ int check_snake_collision(struct Position px)
         return 1;
     if (px.y < 1)
         return 1;
-    if (px.x > screen_width - 1)
+    if (px.x > screen_width - 2)
         return 1;
     if (px.y > screen_height - 1)
         return 1;
@@ -141,10 +141,7 @@ void game_over()
     while (key != 110 && key != 120)
     {
         key = fetch_key();
-        if (turbo)
-            usleep(20);
-        else
-            usleep(200);
+        usleep(200);
     }
     if (key == 120)
         quit = 2;
@@ -255,13 +252,16 @@ void play()
 {
     while(!quit)
     {
-        usleep(speed * 1000);
+        if (!turbo)
+            usleep(speed * 1000);
+        else
+            usleep(speed * 100);
         int key = fetch_key();
         while (key != -1)
         {
             switch (key)
             {
-                case 16:
+                case 116:
                     turbo = !turbo;
                     break;
                 case 65:
