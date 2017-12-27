@@ -37,6 +37,7 @@ struct Position pos[MAX_SIZE];
 struct Position food_position;
 struct termios orig_term_attr;
 struct termios new_term_attr;
+int turbo = 0;
 int paused = 0;
 int quit = 0;
 char arena[MAX_HEIGHT][MAX_WIDTH];
@@ -94,7 +95,7 @@ void draw_map()
 void hud()
 {
     gotoxy(0, screen_height + 1);
-    printf("Score: %i | x - Quit the game | p - pause the game - https://github.com/benapetr/snake   ", snake_size - 3);
+    printf("Score: %i | t - turbo | x - Quit the game | p - pause the game - https://github.com/benapetr/snake   ", snake_size - 3);
 }
 
 int check_snake_collision(struct Position px)
@@ -140,7 +141,10 @@ void game_over()
     while (key != 110 && key != 120)
     {
         key = fetch_key();
-        usleep(200);
+        if (turbo)
+            usleep(20);
+        else
+            usleep(200);
     }
     if (key == 120)
         quit = 2;
@@ -257,6 +261,9 @@ void play()
         {
             switch (key)
             {
+                case 16:
+                    turbo = !turbo;
+                    break;
                 case 65:
                     new_direction = DOWN;
                     break;
