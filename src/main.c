@@ -81,7 +81,7 @@ void draw_map()
     {
         y = 0;
         do {
-            if (x == 0 || y == 0 || x >= screen_width || y >= screen_height-1)
+            if (x == 0 || y == 0 || x >= screen_width-1 || y >= screen_height-1)
             {
                 arena[x][y] = '*';
                 gotoxy(x,y);
